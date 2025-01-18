@@ -110,12 +110,8 @@ I want you to read this essay and then output the one value and one value only t
 - Patience
 - Challenges
 
-Here is the essay:
+Remember to ONLY output one word. Here is the essay:
 `
-
-const essay = `
-I want to watch George Washington go shopping. I have an obsession with presidential trivia, and the ivory-gummed general is far and away my favorite. 
-Great leaders aren’t necessarily defined by their moments under pressure; sometimes tiny decisions are most telling—like knickers or pantaloons?`
 
 // initlalizing up the OpenAI client
 const openai = new openaimodule({apiKey: process.env.OPENAI_API_KEY});
@@ -125,9 +121,13 @@ const app = express();
 
 // saying that our app should us cors -> this will allow the client to send requests here
 app.use(cors());
+app.use(express.json())
 
 
-app.get('/valuescan', async (req, res) => {
+app.post('/valuescan', async (req, res) => {
+
+
+    const essay = req.body.essay;
 
     const completion = await openai.chat.completions.create({
         model: "gpt-4o-mini",
@@ -145,6 +145,7 @@ app.get('/valuescan', async (req, res) => {
         ]
     });
 
+    console.log(completion.choices[0].message.content)
 
     res.json({"valueOutput":completion.choices[0].message.content})
 
