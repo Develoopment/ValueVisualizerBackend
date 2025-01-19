@@ -124,30 +124,53 @@ app.use(cors());
 app.use(express.json())
 
 
-app.post('/valuescan', async (req, res) => {
+const testEssays = [
+    "I love art because I can express myself.",
+    "I love to workout outdoors and go on runs",
+    "Computers amaze me because they are heralding a interesting future."
+]
+
+app.post('/valuescan', async(req, res) => {
 
 
-    const essay = req.body.essay;
+    // const essayList = req.body;
+    // console.log(essayList)
 
-    const completion = await openai.chat.completions.create({
-        model: "gpt-4o-mini",
-        store:false,
-        temperature: 0,
-        messages:[
-            {
-                "role":"developer",
-                "content": prompt
-            },
-            {
-                "role":"user", 
-                "content": essay
-            }
-        ]
-    });
+    const essayList = testEssays;
 
-    console.log(completion.choices[0].message.content)
+    let valueList = [];
 
-    res.json({"valueOutput":completion.choices[0].message.content})
+    await Promise.all(
+    essayList.map(async (essay, index) => {
+
+        // console.log(essay);
+
+        const completion = await openai.chat.completions.create({
+            model: "gpt-4o-mini",
+            store:false,
+            temperature: 0,
+            messages:[
+                {
+                    "role":"developer",
+                    "content": prompt
+                },
+                {
+                    "role":"user", 
+                    "content": essay
+                }
+            ]
+        });
+    
+        const value = completion.choices[0].message.content;
+        valueList.push(value);
+
+    })
+    )
+
+    
+    res.json(valueList)
+
+    // res.json({"valueOutput":completion.choices[0].message.content})
 
 })
 
