@@ -125,52 +125,55 @@ app.use(express.json())
 
 
 const testEssays = [
-    "I love art because I can express myself.",
-    "I love to workout outdoors and go on runs",
+    "I love to create interesting things",
+    "I love to workout outdoors and go on runs and I enjoy using that time to reflect on the world",
     "Computers amaze me because they are heralding a interesting future."
 ]
 
 app.post('/valuescan', async(req, res) => {
 
 
-    // const essayList = req.body;
+    const essayList = req.body;
     // console.log(essayList)
 
-    const essayList = testEssays;
+    // const essayList = testEssays;
 
     let valueList = [];
 
-    await Promise.all(
-    essayList.map(async (essay, index) => {
+    // I had to use a for loop instead .map() because using async funcitons in .map() doesn't work properly
+    // This way, I get the values in order
 
-        // console.log(essay);
+    // also important: this order or [index, essay] is imporatnt because destructuring essayList.entries() assigns the index to the first variable regardless of name
+    for (const [index, essay] of essayList.entries()) {
 
-        const completion = await openai.chat.completions.create({
-            model: "gpt-4o-mini",
-            store:false,
-            temperature: 0,
-            messages:[
-                {
-                    "role":"developer",
-                    "content": prompt
-                },
-                {
-                    "role":"user", 
-                    "content": essay
-                }
-            ]
-        });
-    
-        const value = completion.choices[0].message.content;
-        valueList.push(value);
-
-    })
-    )
-
+        try{
+            const completion = await openai.chat.completions.create({
+                model: "gpt-4o-mini",
+                store: false,
+                temperature: 0,
+                messages: [
+                    {
+                        role: "developer",
+                        content: prompt
+                    },
+                    {
+                        role: "user",
+                        content: essay
+                    }
+                ]
+            });
+        
+            const value = completion.choices[0].message.content;
+            valueList.push(value);
+        }
+        catch(error){
+            console.log(error);
+        }
+        
+    }
     
     res.json(valueList)
 
-    // res.json({"valueOutput":completion.choices[0].message.content})
 
 })
 
